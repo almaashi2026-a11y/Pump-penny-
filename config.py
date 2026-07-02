@@ -17,8 +17,8 @@ TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
 # ============================================================
 # المرحلة 1: فلترة Finnhub (فلتر واسع وسريع)
 # ============================================================
-PRICE_MIN = 0.20
-PRICE_MAX = 10.00
+PRICE_MIN = 0.10
+PRICE_MAX = 0.20
 MIN_AVG_VOLUME = 500_000          # حد أدنى لمتوسط الحجم اليومي
 MAX_WORKERS_STAGE1 = 10           # عدد threads لـ ThreadPoolExecutor
 
