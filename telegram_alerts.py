@@ -1,31 +1,16 @@
 import requests
-import config
+from config import TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
 
-
-def send_telegram_alert(signal: dict) -> bool:
-    if not config.TELEGRAM_BOT_TOKEN or not config.TELEGRAM_CHAT_ID:
-        print("[send_telegram_alert] مفاتيح تيليجرام غير مضبوطة بمتغيرات البيئة")
-        return False
-
+def send_telegram_alert(symbol, strength, money_flow, targets):
     message = (
-        f"🚀 *إشارة دخول جديدة*\n\n"
-        f"الرمز: `{signal['symbol']}`\n"
-        f"السعر: ${signal['price']:.4f}\n"
-        f"RVOL: {signal['rvol']}x\n"
-        f"التغيّر (15د): {signal['price_change_pct']}%\n"
-        f"تدفق مالي كبير: ✅ مؤكد\n\n"
-        f"_EMA9 > VWAP | RVOL > {config.RVOL_THRESHOLD}x | "
-        f"تدفق ≥ {config.MONEY_FLOW_MULTIPLIER}x_"
+        f"🚀 **فرصة انفجار محتملة!**\n\n"
+        f"📈 **السهم:** ${symbol}\n"
+        f"🔥 **قوة الزخم (Score):** {strength}/10\n"
+        f"💰 **تدفق السيولة:** {money_flow}\n"
+        f"🎯 **الأهداف المتوقعة:** {targets[0]} | {targets[1]}\n\n"
+        f"🔗 [شاهد السهم على Finviz](https://finviz.com/quote.ashx?t={symbol})"
     )
-
-    url = f"https://api.telegram.org/bot{config.TELEGRAM_BOT_TOKEN}/sendMessage"
-    payload = {"chat_id": config.TELEGRAM_CHAT_ID, "text": message, "parse_mode": "Markdown"}
-
-    try:
-        response = requests.post(url, json=payload, timeout=10)
-        response.raise_for_status()
-        print(f"[send_telegram_alert] تم إرسال تنبيه {signal['symbol']}")
-        return True
-    except Exception as e:
-        print(f"[send_telegram_alert] خطأ بإرسال التنبيه: {e}")
-        return False
+    
+    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+    params = {'chat_id': TELEGRAM_CHAT_ID, 'text': message, 'parse_mode': 'Markdown'}
+    requests.post(url, params=params)
