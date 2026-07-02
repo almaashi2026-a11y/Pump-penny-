@@ -1,5 +1,9 @@
+import os
 import requests
-from config import TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
+
+# جلب البيانات من إعدادات Render مباشرة
+TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
+TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 def send_telegram_alert(symbol, strength, money_flow, targets):
     message = (
@@ -13,4 +17,8 @@ def send_telegram_alert(symbol, strength, money_flow, targets):
     
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     params = {'chat_id': TELEGRAM_CHAT_ID, 'text': message, 'parse_mode': 'Markdown'}
-    requests.post(url, params=params)
+    
+    try:
+        requests.post(url, params=params)
+    except Exception as e:
+        print(f"فشل إرسال التنبيه: {e}")
