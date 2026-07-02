@@ -1,11 +1,17 @@
+import requests
+import os
+
 def send_telegram_alert(symbol, strength, message, targets):
-    TOKEN = "8834876470:AAF8v7HCm6cV1U9VFCPvB1y1QHhEV-MGPKQ" 
-    CHAT_ID = "Abdulrhmanscan_bot" 
+    # جلب البيانات من إعدادات Render
+    TOKEN = os.environ.get('BOT_TOKEN')
+    CHAT_ID = os.environ.get('CHAT_ID')
+    
+    if not TOKEN or not CHAT_ID:
+        print("خطأ: لم يتم العثور على BOT_TOKEN أو CHAT_ID في إعدادات البيئة")
+        return False
     
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    
-    # تحويل قائمة الأهداف إلى نص آمن
-    targets_text = ", ".join(targets) if targets else "لا توجد أهداف محددة"
+    targets_text = ", ".join(targets) if targets else "لا توجد أهداف"
     
     text = (f"🚨 سهم مرصود: {symbol}\n"
             f"قوة التجميع: {strength}/10\n"
