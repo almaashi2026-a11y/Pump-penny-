@@ -1,69 +1,43 @@
-import time
-import logging
-import requests
-from bs4 import BeautifulSoup
-from stage3_money_flow_detection import calculate_flow
-from telegram_alerts import send_telegram_alert
+"""
+config.py
+---------
+إعدادات السكانر الجديد. كل المفاتيح السرية تُقرأ من متغيرات البيئة
+(Environment Variables) على Render - ما نكتبها هنا مباشرة أبداً.
+"""
 
-# --- إعدادات البوت ---
-BOT_TOKEN = "8895817474:AAHxy3y7WfwNSFfYUY9qPNZmo4xCvlURB8o"
-CHAT_ID = "7990990947" 
-SCAN_INTERVAL_SECONDS = 300 
-MIN_SIGNAL_STRENGTH = 70
-ALERT_COOLDOWN = 3600  
+import os
 
-sent_alerts = {}
+# ============================================================
+# مفاتيح API (تُضاف من لوحة Render: Environment > Add Variable)
+# ============================================================
+FINNHUB_API_KEY = os.environ.get("FINNHUB_API_KEY", "")
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
+# ============================================================
+# المرحلة 1: فلترة Finnhub (فلتر واسع وسريع)
+# ============================================================
+PRICE_MIN = 0.10
+PRICE_MAX = 0.20
+MIN_AVG_VOLUME = 500_000          # حد أدنى لمتوسط الحجم اليومي
+MAX_WORKERS_STAGE1 = 10           # عدد threads لـ ThreadPoolExecutor
 
-def is_high_volume(symbol):
-    try:
-        url = f"https://finviz.com/quote.ashx?t={symbol}"
-        headers = {"User-Agent": "Mozilla/5.0"}
-        response = requests.get(url, headers=headers, timeout=10)
-        soup = BeautifulSoup(response.text, "html.parser")
-        vol_cell = soup.find(text="Volume")
-        if vol_cell:
-            vol_text = vol_cell.find_next("td").text.replace(",", "")
-            return int(vol_text) > 500000
-        return False
-    except:
-        return False
+# ============================================================
+# المرحلة 2: تحليل yfinance على فريم 5 دقايق
+# ============================================================
+EMA_PERIOD = 9
+RVOL_THRESHOLD = 2.0              # RVOL لازم يكون أعلى من هذا
+PRICE_CHANGE_15M_THRESHOLD = 5.0  # % تغيّر خلال آخر 15 دقيقة
+FIVE_MIN_BARS_LOOKBACK = "1d"     # فترة جلب بيانات 5 دقايق
 
-def verify_connection():
-    if not BOT_TOKEN or not CHAT_ID:
-        logging.error("Configuration error!")
-        return False
-    return True
+# ============================================================
+# المرحلة 3: كشف التدفق المالي الكبير (بديل فريم الساعة)
+# ============================================================
+MONEY_FLOW_LOOKBACK_BARS = 3      # عدد الشمعات (15 دقيقة)
+MONEY_FLOW_MULTIPLIER = 5.0       # نسبة التدفق المطلوبة مقارنة بالمتوسط
 
-def get_stocks_from_finviz():
-    url = "https://finviz.com/screener.ashx?v=111&f=sh_price_u10,sh_price_o0.2&ft=4"
-    try:
-        response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=20)
-        soup = BeautifulSoup(response.text, "html.parser")
-        symbols = [a.text for a in soup.find_all("a", class_="screener-link-primary")]
-        return list(set(symbols))
-    except Exception as e:
-        logging.error(f"Finviz Error: {e}")
-        return []
-
-def main():
-    logging.info("Starting Scan...")
-    symbols = get_stocks_from_finviz()
-    for symbol in symbols:
-        try:
-            if not is_high_volume(symbol):
-                continue
-            strength, money_flow, targets = calculate_flow(symbol)
-            if strength >= MIN_SIGNAL_STRENGTH and (symbol not in sent_alerts or (time.time() - sent_alerts[symbol] >= ALERT_COOLDOWN)):
-                send_telegram_alert(symbol, strength, money_flow, targets)
-                sent_alerts[symbol] = time.time()
-                logging.info(f"Alert Sent: {symbol}")
-        except Exception as e:
-            logging.error(f"{symbol}: {e}")
-
-if __name__ == "__main__":
-    if verify_connection():
-        while True:
-            main()
-            time.sleep(SCAN_INTERVAL_SECONDS)
+# ============================================================
+# الحلقة الرئيسية والتنبيهات
+# ============================================================
+SCAN_INTERVAL_SECONDS = 300       # 5 دقايق بين كل دورة سكان
+ALERT_COOLDOWN_MINUTES = 60       # ديدوبليكيشن - نفس الرمز ما يتكرر خلال ساعة
