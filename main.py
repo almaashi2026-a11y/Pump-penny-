@@ -42,7 +42,7 @@ def main():
         try:
             strength, money_flow, targets = calculate_flow(symbol)
             
-            if strength >= 8:
+            if strength >= 0:
                 watchlist[symbol] = watchlist.get(symbol, 0) + 1
                 if watchlist[symbol] == 3:
                     send_telegram_alert(symbol, strength, "تجميع مؤسسي قوي (Finviz Alert)", targets)
