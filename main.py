@@ -1,4 +1,3 @@
-import os
 import time
 import logging
 import requests
@@ -6,10 +5,11 @@ from bs4 import BeautifulSoup
 from stage3_money_flow_detection import calculate_flow
 from telegram_alerts import send_telegram_alert
 
-# جلب المتغيرات مباشرة من إعدادات المنصة السحابية
-BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
-CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
-SCAN_INTERVAL_SECONDS = int(os.getenv('SCAN_INTERVAL_SECONDS', 300))
+# --- ضع بياناتك هنا مباشرة ---
+BOT_TOKEN = "8895817474:AAHxy3y7WfwNSFfYUY9qPNZmo4xCvlURB8o"
+CHAT_ID = "8895817474" 
+SCAN_INTERVAL_SECONDS = 300
+# ---------------------------
 
 # الحد الأدنى لقوة الإشارة
 MIN_SIGNAL_STRENGTH = 80
@@ -24,9 +24,8 @@ logging.basicConfig(
 )
 
 def verify_connection():
-    # التحقق من وجود القيم في النظام
-    if not BOT_TOKEN or not CHAT_ID:
-        logging.error(f"خطأ: BOT_TOKEN={BOT_TOKEN}, CHAT_ID={CHAT_ID}. تأكد من إضافتها في إعدادات المنصة!")
+    if not BOT_TOKEN or not CHAT_ID or CHAT_ID == "ضع_رقم_الـ_CHAT_ID_هنا":
+        logging.error("خطأ: يرجى التأكد من وضع BOT_TOKEN و CHAT_ID بشكل صحيح داخل الكود!")
         return
 
     try:
