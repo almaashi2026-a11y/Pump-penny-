@@ -1,29 +1,34 @@
-import yfinance as yf
+"""
+stage3_money_flow_detection.py
+-------------------------------
+المرحلة الثالثة: تأكيد التدفق المالي الكبير (Money Flow Confirmation).
+بديل عن تأكيد الترند الساعي - يكشف قفزة الفوليوم الدولاري (Price × Volume)
+خلال آخر عدة شمعات (MONEY_FLOW_LOOKBACK_BARS) مقارنة بمتوسط الفوليوم
+الدولاري على باقي الفريم، حسب المضاعف المطلوب (MONEY_FLOW_MULTIPLIER).
+"""
 
-def calculate_flow(symbol):
+import pandas as pd
+import config
+
+
+def check_money_flow_confirmation(symbol: str, df: pd.DataFrame) -> bool:
     try:
-        # جلب البيانات
-        stock = yf.Ticker(symbol)
-        hist = stock.history(period="5d")
-        
-        if len(hist) < 2:
-            return 0, "مجهول", [0, 0]
+        if df.empty or len(df) < config.MONEY_FLOW_LOOKBACK_BARS + 5:
+            return False
 
-        last_close = hist['Close'].iloc[-1]
-        prev_close = hist['Close'].iloc[-2]
-        
-        # حساب التغير
-        price_change = ((last_close - prev_close) / prev_close) * 100
-        
-        # تقييم القوة (Score)
-        strength = min(10, max(1, int(price_change * 2)))
-        
-        # الأهداف
-        atr = (hist['High'] - hist['Low']).mean()
-        targets = [round(last_close + (atr * 1.5), 2), round(last_close + (atr * 3), 2)]
-        
-        money_flow = "إيجابي" if price_change > 0 else "سلبي"
-        
-        return strength, money_flow, targets
-    except Exception:
-        return 0, "خطأ", [0, 0]
+        dollar_volume = df["Close"] * df["Volume"]
+
+        recent = dollar_volume.tail(config.MONEY_FLOW_LOOKBACK_BARS)
+        baseline = dollar_volume.iloc[: -config.MONEY_FLOW_LOOKBACK_BARS]
+
+        if baseline.empty or baseline.mean() == 0:
+            return False
+
+        recent_avg = float(recent.mean())
+        baseline_avg = float(baseline.mean())
+
+        return recent_avg >= (baseline_avg * config.MONEY_FLOW_MULTIPLIER)
+
+    except Exception as e:
+        print(f"[check_money_flow_confirmation] خطأ بـ {symbol}: {e}")
+        return False
