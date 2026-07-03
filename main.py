@@ -1,11 +1,22 @@
+import os
 import time
 import requests
 from bs4 import BeautifulSoup
 from stage3_money_flow_detection import calculate_flow
 from telegram_alerts import send_telegram_alert
 
-# سطر اختبار للتأكد من عمل البوت (يمكنك حذفه بعد التأكد من وصول الرسالة)
-send_telegram_alert("TEST", 0, "الصياد يعمل الآن ومستعد للمسح!", ["اختبار"])
+# --- دالة اختبار إضافية لضمان وصول الرسالة فور التشغيل ---
+def send_startup_test():
+    try:
+        token = os.environ.get('BOT_TOKEN')
+        chat_id = os.environ.get('CHAT_ID')
+        if token and chat_id:
+            requests.get(f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text=🚀 الصياد يعمل الآن ومستعد للمسح!")
+    except Exception as e:
+        print(f"خطأ في رسالة الاختبار: {e}")
+
+# تنفيذ رسالة الاختبار عند تشغيل السكربت لأول مرة
+send_startup_test()
 
 watchlist = {}
 
@@ -17,12 +28,11 @@ def get_stocks_from_finviz():
     try:
         response = requests.get(url, headers=headers)
         soup = BeautifulSoup(response.text, 'html.parser')
-        # استخراج رموز الأسهم من جدول Finviz
         symbols = [a.text for a in soup.find_all('a', class_='screener-link-primary')]
-        return symbols[:20] # نأخذ أول 20 سهم
+        return symbols[:20] 
     except Exception as e:
         print(f"خطأ في جلب الأسهم من Finviz: {e}")
-        return ["AAPL", "AMD", "NVDA"]
+        return []
 
 def main():
     print("بدء المسح الذكي من Finviz...")
@@ -38,7 +48,8 @@ def main():
                     send_telegram_alert(symbol, strength, "تجميع مؤسسي قوي (Finviz Alert)", targets)
             else:
                 watchlist[symbol] = 0
-        except Exception:
+        except Exception as e:
+            print(f"خطأ في معالجة السهم {symbol}: {e}")
             continue
             
     print("...اكتملت الجولة. انتظار 5 دقائق...")
