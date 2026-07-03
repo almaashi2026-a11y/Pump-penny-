@@ -5,8 +5,9 @@ from bs4 import BeautifulSoup
 from stage3_money_flow_detection import calculate_flow
 from telegram_alerts import send_telegram_alert
 
+# --- إعدادات البوت ---
 BOT_TOKEN = "8895817474:AAHxy3y7WfwNSFfYUY9qPNZmo4xCvlURB8o"
-CHAT_ID = "8895817474"
+CHAT_ID = "7990990947" 
 SCAN_INTERVAL_SECONDS = 300 
 MIN_SIGNAL_STRENGTH = 80
 ALERT_COOLDOWN = 3600  
@@ -30,7 +31,7 @@ def is_high_volume(symbol):
         return False
 
 def verify_connection():
-    if not BOT_TOKEN or not CHAT_ID or CHAT_ID == "ضع_رقم_الـ_CHAT_ID_هنا":
+    if not BOT_TOKEN or not CHAT_ID:
         logging.error("Configuration error!")
         return False
     return True
