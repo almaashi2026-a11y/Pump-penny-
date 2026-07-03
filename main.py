@@ -9,7 +9,7 @@ from telegram_alerts import send_telegram_alert
 BOT_TOKEN = "8895817474:AAHxy3y7WfwNSFfYUY9qPNZmo4xCvlURB8o"
 CHAT_ID = "7990990947" 
 SCAN_INTERVAL_SECONDS = 300 
-MIN_SIGNAL_STRENGTH = 80
+MIN_SIGNAL_STRENGTH = 20
 ALERT_COOLDOWN = 3600  
 
 sent_alerts = {}
