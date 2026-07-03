@@ -9,7 +9,6 @@ test_bot.py
 import sys
 import os
 
-# التحقق من المتغيرات قبل الاستيراد
 print("=" * 60)
 print("🤖 اختبار اتصال Telegram Bot على Render")
 print("=" * 60)
@@ -32,18 +31,17 @@ if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
     print("   4. اضغط Save و Deploy")
     sys.exit(1)
 
-# الآن استورد الوحدات
 from telegram_alerts import send_telegram_alert
 
 print("\n🔄 محاولة إرسال رسالة اختبار...")
 print("-" * 60)
 
-# إرسال الرسالة
+# إرسال الرسالة (بنفس توقيع الدالة الجديد: symbol, price, message, targets)
 success = send_telegram_alert(
-    symbol="TEST_BOT",
-    strength=9,
-    money_flow="✅ اختبار الاتصال - إذا وصلت هذه الرسالة فالبوت يعمل على Render!",
-    targets=["$0.25", "$0.30"]
+    "TEST_BOT",
+    "0.15",
+    "✅ اختبار الاتصال - إذا وصلت هذه الرسالة فالبوت يعمل على Render!",
+    ["$0.25", "$0.30"]
 )
 
 print("-" * 60)
