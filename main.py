@@ -1,3 +1,4 @@
+send_telegram_alert("TEST", 0, "✅ تم تشغيل السكنر وبدأ المسح بنجاح!")
 import time
 import logging
 from moomoo import OpenQuoteContext, RET_OK
