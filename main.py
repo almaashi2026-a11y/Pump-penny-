@@ -1,18 +1,21 @@
+# main.py
 import time
 import logging
 from moomoo import OpenQuoteContext, RET_OK
-from telegram_alerts import send_telegram_alert # نعتمد على دالتك الموجودة مسبقاً
-from config import MOOMOO_IP, MOOMOO_PORT # تأكد من إضافة هذه في ملف config
+from telegram_alerts import send_telegram_alert
+import config
 
 # إعداد الاتصال بـ Moomoo
-quote_ctx = OpenQuoteContext(host=MOOMOO_IP, port=MOOMOO_PORT)
+quote_ctx = OpenQuoteContext(host=config.MOOMOO_IP, port=config.MOOMOO_PORT)
 sent_alerts = {} 
 
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(message)s")
+
 def main():
-    logging.info("Starting Moomoo Live Scanner...")
+    logging.info("Scanner Started via Moomoo API...")
     
     while True:
-        # جلب البيانات الحية (يمكنك تحديد قائمة الأسهم أو السوق 'US')
+        # جلب البيانات الحية للسوق الأمريكي
         ret, data = quote_ctx.get_market_snapshot(['US'])
         
         if ret == RET_OK:
@@ -24,20 +27,20 @@ def main():
                 # فلتر: النطاق السعري المطلوب
                 if 0.20 <= price <= 10.0:
                     
-                    # فلتر: Block Buy (حجم ضخم يتجاوز المتوسط)
-                    # ملاحظة: يمكنك استبدال row['avg_vol'] بمعادلة حسابية إذا لم تتوفر
-                    if volume > (row.get('avg_vol', volume/2) * 3):
+                    # فلتر: Block Buy (حجم يتجاوز 3 أضعاف متوسط الحجم)
+                    # ملاحظة: إذا كان avg_vol غير متاح في العمود، يمكنك وضع رقم ثابت كحد أدنى
+                    if volume > (row.get('prev_close_volume', volume/2) * 3):
                         
-                        # فلتر: Cooldown لمنع التكرار المزعج
+                        # فلتر: Cooldown لمنع تكرار التنبيهات
                         current_time = time.time()
-                        if symbol not in sent_alerts or (current_time - sent_alerts[symbol] > 300):
+                        if symbol not in sent_alerts or (current_time - sent_alerts[symbol] > config.ALERT_COOLDOWN_MINUTES * 60):
                             
-                            # إرسال التنبيه
-                            msg = f"🚀 {symbol} | Price: {price} | Vol: {volume}"
-                            send_telegram_alert("BLOCK_BUY", price, msg, [])
+                            msg = f"🚀 {symbol} | السعر: {price} | الحجم: {volume}"
+                            send_telegram_alert(symbol, price, msg, [])
                             sent_alerts[symbol] = current_time
+                            logging.info(f"Alert sent for: {symbol}")
         
-        time.sleep(5) # تحديث كل 5 ثوانٍ لضمان السرعة
+        time.sleep(config.SCAN_INTERVAL_SECONDS)
 
 if __name__ == "__main__":
     main()
