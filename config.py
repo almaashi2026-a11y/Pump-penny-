@@ -1,11 +1,10 @@
-# config.py
+import os
+
+# قراءة القيم من Environment Variables في Render، أو استخدام القيم الافتراضية
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+
 MOOMOO_IP = "127.0.0.1" 
 MOOMOO_PORT = 11111
-
-# ضع التوكن والشات آي دي هنا مباشرة
-TELEGRAM_BOT_TOKEN = "8895817474:AAhxy3y7WfwNSFffYUY9qPNZmo4xCvlURB8o"
-TELEGRAM_CHAT_ID = "7990990947"
-
-# إعدادات المسح
 SCAN_INTERVAL_SECONDS = 5
 ALERT_COOLDOWN_MINUTES = 5
