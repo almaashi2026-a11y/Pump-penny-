@@ -1,13 +1,11 @@
 # config.py
-
-# إعدادات الاتصال بـ Moomoo OpenD
 MOOMOO_IP = "127.0.0.1" 
 MOOMOO_PORT = 11111
 
-# إعدادات التليجرام
-TELEGRAM_BOT_TOKEN = "ضع_التوكن_الخاص_بك_هنا"
-TELEGRAM_CHAT_ID = "ضع_الشات_آي_دي_هنا"
+# ضع التوكن والشات آي دي هنا مباشرة
+TELEGRAM_BOT_TOKEN = "8895817474:AAhxy3y7WfwNSFffYUY9qPNZmo4xCvlURB8o"
+TELEGRAM_CHAT_ID = "7990990947"
 
-# إعدادات المسح (Scanner)
+# إعدادات المسح
 SCAN_INTERVAL_SECONDS = 5
 ALERT_COOLDOWN_MINUTES = 5
