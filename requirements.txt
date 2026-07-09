@@ -1,5 +1,1 @@
-requests
-beautifulsoup4
-yfinance
-pandas
-python-telegram-bot
+moomoo-api
