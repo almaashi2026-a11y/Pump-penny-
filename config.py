@@ -1,4 +1,4 @@
-# ضع بياناتك هنا مباشرة، لا حاجة لإعدادات إضافية في Render
+# إعدادات ثابتة ومباشرة لضمان القراءة الصحيحة
 TELEGRAM_BOT_TOKEN = "8895817474:AAhxy3y7WfwNSFffYUY9qPNZmo4xCvlURB8o"
 TELEGRAM_CHAT_ID = "7990990947"
 
