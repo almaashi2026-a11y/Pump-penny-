@@ -1,8 +1,7 @@
-# telegram_alerts.py
 import requests
 import config
 
-def send_telegram_alert(symbol, price, message, details):
+def send_telegram_alert(symbol, price, message):
     url = f"https://api.telegram.org/bot{config.TELEGRAM_BOT_TOKEN}/sendMessage"
     payload = {
         "chat_id": config.TELEGRAM_CHAT_ID,
