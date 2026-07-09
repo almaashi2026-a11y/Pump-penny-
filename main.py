@@ -1,22 +1,31 @@
 import time
 import logging
-# الاستيرادات في الأعلى لضمان تعريف الدوال
 from telegram_alerts import send_telegram_alert
 import config
 from moomoo import OpenQuoteContext, RET_OK
 
-# إعداد اللوجر
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(message)s")
-quote_ctx = OpenQuoteContext(host=config.MOOMOO_IP, port=config.MOOMOO_PORT)
 
 def main():
-    print(">>> SYSTEM STATUS: Scanner is starting...")
+    print(">>> SYSTEM STATUS: Scanner starting...")
+    send_telegram_alert("SYSTEM", 0, "🚀 السكنر يعمل الآن ومستعد للمسح!")
     
-    # الاستدعاء الآن داخل الدالة ولن يسبب خطأ
-    send_telegram_alert("SYSTEM", 0, "🚀 تم تشغيل السكنر بنجاح وبدأ المسح!")
-    
+    # محاولة الاتصال مع ضمان عدم توقف السكربت إذا فشل
+    try:
+        quote_ctx = OpenQuoteContext(host=config.MOOMOO_IP, port=config.MOOMOO_PORT)
+    except Exception as e:
+        print(f"Error connecting: {e}")
+        return
+
     while True:
-        # هنا يوضع منطق المسح الخاص بك
+        try:
+            # إضافة كود المسح هنا
+            ret, data = quote_ctx.get_market_snapshot(['US'])
+            # ... باقي منطق الفلترة ...
+        except Exception as e:
+            # هذا الجزء هو الأهم: إذا حدث أي خطأ تقني، سيعيد المحاولة بدلاً من التوقف
+            print(f"Loop error: {e}")
+        
         time.sleep(config.SCAN_INTERVAL_SECONDS)
 
 if __name__ == "__main__":
