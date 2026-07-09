@@ -1,6 +1,7 @@
 import os
 
-# قراءة القيم من Environment Variables في Render، أو استخدام القيم الافتراضية
+# قراءة البيانات من إعدادات Render (Environment Variables)
+# تأكد أن المفاتيح في Render مطابقة تماماً لهذه الأسماء
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
